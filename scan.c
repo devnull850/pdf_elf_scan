@@ -3,13 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define LEN 256
+
 int main(void) {
 	FILE *fd;
-	char *buf, *p;
+	char *buf, *p, filename[LEN+1];
 	long len;
 
-	if (!(fd = fopen("test1.pdf", "rb"))) {
-		fprintf(stderr, "error opening [test1.pdf]\n");
+	fgets(filename, LEN, stdin);
+	if ((p = strchr(filename, 0xa))) {
+		*p = 0;
+	}
+
+	if (!(fd = fopen(filename, "rb"))) {
+		fprintf(stderr, "error opening [%s]\n", filename);
 		exit(EXIT_FAILURE);
 	}
 
@@ -25,9 +32,11 @@ int main(void) {
 	fread(buf, 1, len, fd);
 
 	if (fclose(fd) == EOF) {
-		fprintf(stderr, "error closing [test1.pdf]\n");
+		fprintf(stderr, "error closing [%s]\n", filename);
 		exit(EXIT_FAILURE);
 	}
+
+	puts(filename);
 
 	p = buf;
 

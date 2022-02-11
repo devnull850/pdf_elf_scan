@@ -15,7 +15,7 @@ uint64_t seen[1024];
 
 int main(void) {
 	FILE *fd;
-	char *s;
+	char *s, *filename;
 	long len, addr, entry;
 	char in[IN_LEN + 1];
 	csh handle;
@@ -26,8 +26,20 @@ int main(void) {
 	size_t seen_index;
 	int flag;
 
-	if (!(fd = fopen("test1.pdf", "rb"))) {
-		fprintf(stderr, "error opening [test1.pdf]\n");
+	fgets(in, IN_LEN, stdin);
+	if ((filename = strchr(in, 0xa))) {
+		*filename = 0;
+	}
+
+	if (!(filename = malloc(strlen(in)+1))) {
+		fprintf(stderr, "error allocating memory\n");
+		exit(EXIT_FAILURE);
+	}
+
+	strncpy(filename, in, strlen(in));
+
+	if (!(fd = fopen(filename, "rb"))) {
+		fprintf(stderr, "error opening [%s]\n", filename);
 		exit(EXIT_FAILURE);
 	}
 
@@ -43,9 +55,11 @@ int main(void) {
 	fread(buf, 1, len, fd);
 
 	if (fclose(fd) == EOF) {
-		fprintf(stderr, "error closing [test1.pdf]\n");
+		fprintf(stderr, "error closing [%s]\n", filename);
 		exit(EXIT_FAILURE);
 	}
+
+	free(filename);
 
 	if (cs_open(CS_ARCH_X86, CS_MODE_64, &handle) != CS_ERR_OK) {
 		fprintf(stderr, "error opening capstone handle\n");
